@@ -3,23 +3,22 @@ import java.io.*;
 /**
  * Класс Formatter предназначен для форматирования текста
  */
-public final class Formatter {
-   private Formatter(){
+ class Formatter implements IFormatter {
+   public Formatter(){
     }
 
     /**
-     *метод formater получает путь к файлу и форматирует его содержимое
-     * @param way путь к файлу
-     * @throws IOException
+     *метод format получает путь к файлу и форматирует его содержимое
+     * @param in входные данные
+     * @param out выходные данные
+     * @throws IOException исключение
      */
-    public static void formatter(final String way) throws IOException {
-        File file = new File(way);
-        BufferedReader reader = new BufferedReader(new FileReader(file));
+    public  String format(final IReader in, final IWriter out) throws IOException {
         int indent = 0;
         String line;
         String newString = "";
         String space = "";
-        while ((line = reader.readLine()) != null) {
+        while ((line = in.readCharline()) != null) {
             line = line.trim();
             char[] buffer = new char[line.length()];
             buffer = line.toCharArray();
@@ -51,14 +50,14 @@ public final class Formatter {
             }
 
         }
-        System.out.print(newString);
-        FileWriter wreiter = new FileWriter(file);
-        wreiter.write(newString);
-        wreiter.close();
+        out.writeChars(newString);
+        out.close();
 
 
 
-
+return newString;
     }
+
+
 }
 

@@ -4,5 +4,5 @@ target/
 
 *.class
 *.jar
-*.xml
+
 *.iml
