@@ -4,60 +4,102 @@ import java.io.*;
  * Класс Formatter предназначен для форматирования текста
  */
  class Formatter implements IFormatter {
-   public Formatter(){
+    /**
+     * Создает объект класса Formatter
+     */
+     Formatter() {
     }
 
     /**
-     *метод format получает путь к файлу и форматирует его содержимое
-     * @param in входные данные
+     * метод format получает путь к файлу и форматирует его содержимое
+     *
+     * @param in  входные данные
      * @param out выходные данные
-     * @throws IOException исключение
+     * @throws FormatterException исключение
      */
-    public  String format(final IReader in, final IWriter out) throws IOException {
-        int indent = 0;
-        String line;
-        String newString = "";
-        String space = "";
-        while ((line = in.readCharline()) != null) {
-            line = line.trim();
-            char[] buffer = new char[line.length()];
-            buffer = line.toCharArray();
-            for (int i = 0; i < buffer.length; i++) {
+    public void format(final IReader in, final IWriter out) throws FormatterException {
+        try {
 
-                if (!(buffer[i] == '{' | buffer[i] == '}' | buffer[i] == ';' | buffer[i] == buffer.length - 1)) {
-                    newString = newString + buffer[i];
-                } else {
-                    if (buffer[i] == '{') {
-                        indent = indent + 4;
-                        space = "";
-                        for (int a = indent; a > 0; a--) {
-                            space = space + " ";
+            int indent = 0;
+            final int indentspace = 4;
+            char c;
+            while (in.hasChars()) {
+                c = in.readChar();
+                if (c == '{') {
+                    indent = indent + indentspace;
+                    out.writeChar(c);
+                    out.writeChar('\n');
+                    for (int i = 0; i < indent; i++) {
+                        out.writeChar(' ');
+                    }
+
+                }
+                if (c == '}') {
+                    indent = indent - indentspace;
+                    out.writeChar('\n');
+                    for (int i = 0; i < indent; i++) {
+                        out.writeChar(' ');
+                    }
+                    out.writeChar(c);
+                    out.writeChar('\n');
+
+                }
+                if (c == ';') {
+                    out.writeChar(c);
+                    for (int i = 0; i < indent; i++) {
+                        out.writeChar(' ');
+                    }
+                    out.writeChar('\n');
+
+                }
+                if (c == '/') {
+                    out.writeChar(c);
+                    c = in.readChar();
+                    if (c == '/') {
+                        out.writeChar(c);
+                        while ((c = in.readChar()) != '\n') {
+                            out.writeChar(c);
                         }
-                        newString = newString + buffer[i] + "\r\n" + space;
+                        out.writeChar(c);
                     }
-                    if (buffer[i] == '}') {
-                        indent = indent - 4;
-                        space = "";
-                        for (int a = indent; a > 0; a--) {
-                            space = space + " ";
+                    if (c == '*') {
+                        out.writeChar(c);
+                        while ((c = in.readChar()) != '*') {
+                            out.writeChar(c);
                         }
-                        newString = newString + "\r\n" + space + buffer[i] + "\r\n" + space;
+                        out.writeChar(c);
+                        out.writeChar(in.readChar());
+                        out.writeChar('\n');
                     }
-                    if (buffer[i] == ';') {
-                        newString = newString + buffer[i] + "\r\n" + space;
+
+
+                }
+                if (c == '\'') {
+                    out.writeChar(c);
+                    while ((c = in.readChar()) != '\'') {
+                        out.writeChar(c);
                     }
+                    out.writeChar(c);
+                }
+                if (c == '\"') {
+                    out.writeChar(c);
+                    while ((c = in.readChar()) != '\"') {
+                        out.writeChar(c);
+                    }
+                    out.writeChar(c);
+                }
+
+                if (c != '}' & c != '{' & c != ';' & c != '*' & c != '\'' & c != '\"') {
+                    out.writeChar(c);
                 }
             }
 
+            out.close();
+        } catch (IOException e) {
+            throw new FormatterException(e);
         }
-        out.writeChars(newString);
-        out.close();
-
-
-
-return newString;
-    }
-
+        }
 
 }
+
 
